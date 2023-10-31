@@ -1,0 +1,3 @@
+[submodule "src/test/resources/data/alignments"]
+	path = src/test/resources/data/alignments
+	url = ../../../wiesiek/ipsm-alignments.git

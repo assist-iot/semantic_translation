@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "semtrans.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "semtrans.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "semtrans.fullname" . }}-headless
+  {{- if not .Values.semtrans.autoscaling.enabled }}
+  replicas: {{ .Values.semtrans.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "semtrans.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "semtrans.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.semtrans.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.enablerNodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if not .Values.enablerNodeSelector }}
+        {{- with .Values.semtrans.nodeSelector }}
+      nodeSelector:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.semtrans.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.semtrans.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.semtrans.podSecurityContext | nindent 8 }}
+      containers:
+        - name: semtrans
+          securityContext:
+            {{- toYaml .Values.semtrans.securityContext | nindent 12 }}
+          image: "{{ .Values.semtrans.image.repository }}:{{ .Values.semtrans.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.semtrans.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.semtrans.service.ports.http.containerPort }}
+              protocol: {{ .Values.semtrans.service.ports.http.protocol }}
+          resources:
+            {{- toYaml .Values.semtrans.resources | nindent 12 }}
+          {{- with .Values.semtrans.envVars }}
+          env:
+            - name: IPSM_MQTT_SRC_HOST
+              value: {{ .mqttSrcHost | quote }}
+            - name: IPSM_MQTT_SRC_PORT
+              value: {{ .mqttSrcPort | quote }}
+            - name: IPSM_MQTT_TRG_HOST
+              value: {{ .mqttTrgHost | quote }}
+            - name: IPSM_MQTT_TRG_PORT
+              value: {{ .mqttTrgPort | quote }}
+            - name: IPSM_KAFKA_HOST
+              value: {{ .kafkaHost | quote }}
+            - name: IPSM_KAFKA_PORT
+              value: {{ .kafkaPort | quote }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.semtrans.persistence.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+      volumes:
+  {{- if and .Values.semtrans.persistence.enabled .Values.semtrans.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.semtrans.persistence.existingClaim $ }}
+  {{- else if not .Values.semtrans.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+        {{- range .Values.semtrans.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.semtrans.persistence.size | quote }}
+  {{- end }}

@@ -1,0 +1,12 @@
+﻿.idea/
+.bloop/
+.bsp/
+.vscode/
+.metals/
+data/
+target/
+project/metals.sbt
+project/project/
+project/target/
+ipsm-*.log
+semantic-translation-*.tgz

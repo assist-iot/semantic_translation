@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "semtrans.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "semtrans.labels" . | nindent 4 }}
+  annotations:
+    {{- if .Values.globalService }}
+    {{- include "globalServiceAnnotations" . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.semtrans.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.semtrans.service.ports.http.port }}
+      targetPort: {{ .Values.semtrans.service.ports.http.targetPort }}
+      protocol: {{ .Values.semtrans.service.ports.http.protocol }}
+      {{- if and (or (eq .Values.semtrans.service.type "NodePort") (eq .Values.semtrans.service.type "LoadBalancer")) (not (empty .Values.semtrans.service.ports.http.nodePort)) }}
+      nodePort: {{ .Values.semtrans.service.ports.http.nodePort }}
+      {{- end }}
+  selector:
+    {{- include "semtrans.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "semtrans.svc.headless" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "semtrans.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: http
+      port: {{ .Values.semtrans.service.ports.http.port }}
+      targetPort: {{ .Values.semtrans.service.ports.http.targetPort }}
+      protocol: {{ .Values.semtrans.service.ports.http.protocol }}
+  selector:
+    {{- include "semtrans.selectorLabels" . | nindent 4 }}

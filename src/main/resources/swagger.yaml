@@ -1,0 +1,730 @@
+openapi: 3.0.1
+info:
+  title: Semantic Translation Enabler API
+  description: Semantic Translation Enabler (**STE**) API
+  version: 1.0.0
+servers:
+  - url: /
+tags:
+  - name: Alignments
+    description: Alignment management
+  - name: Channels
+    description: Channel management
+  - name: Translation
+    description: HTTP-based translation
+  - name: Logging
+    description: Logging configuration
+  - name: Meta
+    description: Additional information
+paths:
+  /v1/alignments:
+    get:
+      tags:
+        - Alignments
+      summary: List alignments
+      description: Lists alignments uploaded to the STE.
+      responses:
+        200:
+          description: Information about alignments available in this STE instance
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlignmentInfo'
+    post:
+      tags:
+        - Alignments
+      summary: Upload new alignment
+      requestBody:
+        description: Alignment source
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        201:
+          description: Alignment uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        208:
+          description: Alignment already uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        400:
+          description: Wrong arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        409:
+          description: Alignment with the same ID but different definition exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: alignment
+  /v1/alignments/{name}/{version}:
+    get:
+      tags:
+        - Alignments
+      summary: Get an alignment identified by name+version
+      parameters:
+        - name: name
+          in: path
+          description: Name of the alignment to be retrieved
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          description: Version of the alignment to be retrieved
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Alignment successfuly retrieved
+          content:
+            application/xml:
+              schema:
+                type: string
+        400:
+          description: Alignment not found
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Alignment retrieval failed
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Alignments
+      summary: Delete alignment identified by name+version
+      parameters:
+        - name: name
+          in: path
+          description: Name of the alignment to delete
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          description: Version of the alignment to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Alignment deleted
+          content: {}
+        400:
+          description: Alignment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Alignment deletion failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/convert:
+    post:
+      tags:
+        - Alignments
+      summary: Convert XML alignment into RDF/XML format
+      description: Converts from old pure XML IPSM-AF format (no longer supported)
+        into equivalent newer RDF/XML IPSM-AF
+      requestBody:
+        description: Alignment source
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        201:
+          description: Alignment converted successfuly
+          content:
+            application/xml:
+              schema:
+                type: string
+        500:
+          description: Alignment conversion failed
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: alignment
+  /v1/convert/TTL:
+    post:
+      tags:
+        - Alignments
+      summary: Convert alignment cells to Turtle format
+      description: Converts cells of an alignment to Turtle format
+      requestBody:
+        description: Alignment source
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        201:
+          description: Alignment cells converted successfuly
+          content:
+            application/xml:
+              schema:
+                type: string
+        500:
+          description: Alignment cells conversion failed
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: alignment
+  /v1/validate:
+    post:
+      tags:
+        - Alignments
+      summary: Validate alignment
+      description: Validates the structure of an alignment
+      requestBody:
+        description: Alignment source
+        content:
+          application/xml:
+            schema:
+              type: string
+        required: true
+      responses:
+        201:
+          description: Alignment validated successfuly
+          content:
+            application/json:
+              schema:
+                type: string
+        500:
+          description: Alignment validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: alignment
+  /v1/channels:
+    get:
+      tags:
+        - Channels
+      summary: List active channels
+      description: The endpoint returns the list of all STE channels which are currently
+        active.
+      responses:
+        200:
+          description: Array of channel information records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelInfo'
+    post:
+      tags:
+        - Channels
+      summary: Create new channel
+      requestBody:
+        description: Channel configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelConfig'
+        required: true
+      responses:
+        201:
+          description: Channel created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        400:
+          description: Channel already exists or wrong arguments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-codegen-request-body-name: conf
+  /v1/channels/{channelId}:
+    delete:
+      tags:
+        - Channels
+      summary: Delete channel based on the ID
+      parameters:
+        - name: channelId
+          in: path
+          description: ID of channel to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Channel deleted
+          content: {}
+        400:
+          description: Channel not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Closing channel failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/translation:
+    post:
+      tags:
+        - Translation
+      summary: Translate JSON-LD message via sequence of alignments
+      requestBody:
+        description: Translation request data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslationRequest'
+        required: true
+      responses:
+        200:
+          description: Translation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationResponse'
+        400:
+          description: Error during translation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationErrorResponse'
+      x-codegen-request-body-name: data
+  /v1/logging:
+    get:
+      tags:
+        - Logging
+      summary: Get current logging level
+      responses:
+        200:
+          description: Current logging level successfuly returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoggingResponse'
+  /v1/logging/{level}:
+    post:
+      tags:
+        - Logging
+      summary: Set logging level
+      parameters:
+        - name: level
+          in: path
+          description: Logging level
+          required: true
+          schema:
+            type: string
+            enum:
+              - all
+              - trace
+              - debug
+              - info
+              - warn
+              - error
+              - off
+      responses:
+        200:
+          description: Logging level set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoggingResponse'
+  /v1/version:
+    get:
+      tags:
+        - Meta
+      summary: Get version info
+      responses:
+        200:
+          description: STE version info successfuly returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+  /v1/health:
+    get:
+      summary: Returns the STE health status
+      tags:
+        - Meta
+      responses:
+        "200": { description: STE health status }
+  /version:
+    get:
+      tags:
+        - Meta
+      summary: Get version info
+      responses:
+        200:
+          description: STE version info successfuly returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+  /health:
+    get:
+      summary: Get current health status
+      tags:
+        - Meta
+      responses:
+        "200": { description: STE health status }
+components:
+  schemas:
+    ChannelInfo:
+      required:
+        - chanType
+        - descId
+        - id
+        - inpAlignmentName
+        - inpAlignmentVersion
+        - outAlignmentName
+        - outAlignmentVersion
+        - sink
+        - source
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifier of the channel
+        descId:
+          type: string
+          description: Business identifier of the channel
+        chanType:
+          type: string
+          description: Channel input/output type (MQTT/Kafka)
+          enum:
+            - MM
+            - KK
+        source:
+          type: string
+          description: Identifier representing the source of the channel, i.e. MQTT
+            or Apache Kafka topic from which STE reads the RDF data to be translated
+        inpAlignmentName:
+          type: string
+          description: Name of the input alignment, used for translating the incoming
+            RDF data
+        inpAlignmentVersion:
+          type: string
+          description: Version of the input alignment, used for translating the incoming
+            RDF data
+        outAlignmentName:
+          type: string
+          description: Name of the output alignment, used for translating the outgoing
+            RDF data
+        outAlignmentVersion:
+          type: string
+          description: Version of the output alignment, used for translating the outgoing
+            RDF data
+        sink:
+          type: string
+          description: Identifier of the sink of the channel, i.e. MQTT or Apache
+            Kafka topic to which IPSM publishes translated RDF data
+    ChannelConfig:
+      required:
+        - inpAlignmentName
+        - inpAlignmentVersion
+        - outAlignmentName
+        - outAlignmentVersion
+        - sink
+        - source
+      type: object
+      properties:
+        chanType:
+          type: string
+          description: Channel input/output type (MQTT/Kafka)
+          enum:
+            - MM
+            - KK
+        source:
+          type: string
+          description: Identifier representing the source of the channel, i.e. MQTT
+            or Apache Kafka topicfrom which STE reads the RDF data to be translated
+        inpAlignmentName:
+          type: string
+          description: Name of the input alignment, used for translating the incoming
+            RDF data
+        inpAlignmentVersion:
+          type: string
+          description: Version of the input alignment, used for translating the incoming
+            RDF data
+        outAlignmentName:
+          type: string
+          description: Name of the output alignment, used for translating the outgoing
+            RDF data
+        outAlignmentVersion:
+          type: string
+          description: Version of the output alignment, used for translating the outgoing
+            RDF data
+        sink:
+          type: string
+          description: Identifier of the sink of the channel, i.e., MQTT or Apache
+            Kafka topic to which STE publishes translated RDF data
+        parallelism:
+          type: integer
+          description: Internal parallelism of the channel, e.g., the value 5 means
+            that the channel can consume 5 messages in parallel (preserving their
+            time order)
+    Alignment:
+      required:
+        - align:map
+        - align:onto1
+        - align:onto2
+        - sripas:steps
+      type: object
+      properties:
+        dcelem:title:
+          type: string
+          description: Alignment name
+        exmo:version:
+          type: string
+          description: alignment version
+        dcelem:creator:
+          type: string
+          description: alignment creator
+        dcelem:description:
+          type: string
+          description: alignment description
+        align:xml:
+          type: string
+          description: yes
+        align:level:
+          type: string
+          description: 2IPSM for ISPM-AF; Level from Alignment Format specification
+        align:type:
+          type: string
+          description: '**; type form Alignment Format specification'
+        align:method:
+          type: string
+          description: method of alignment construction e.g. manual
+        dcelem:date:
+          type: string
+          description: timestamp of an event in the lifecycle of the alignment e.g.
+            creation date (ISO8601 format)
+        align:onto1:
+          required:
+            - align:Ontology
+          type: object
+          properties:
+            align:Ontology:
+              type: object
+              properties:
+                about:
+                  type: string
+                  description: URI identifying the ontology
+                  xml:
+                    attribute: true
+              description: Contains the URI identifying the ontology
+          description: align:onto1
+        align:onto2:
+          required:
+            - align:Ontology
+          type: object
+          properties:
+            align:Ontology:
+              type: object
+              properties:
+                about:
+                  type: string
+                  description: URI identifying the ontology
+                  xml:
+                    attribute: true
+              description: Contains the URI identifying the ontology
+          description: align:onto2
+        sripas:steps:
+          type: object
+          properties:
+            sripas:step:
+              type: object
+              properties:
+                cell:
+                  type: string
+                  description: Alignment cell ID
+                  xml:
+                    attribute: true
+                order:
+                  type: integer
+                  description: Order of cell application
+                  xml:
+                    attribute: true
+              description: Alignment step
+          description: Steps
+        align:map:
+          type: object
+          properties:
+            Cell:
+              required:
+                - align:entity1
+                - align:entity2
+                - align:relation
+              type: object
+              properties:
+                align:entity1:
+                  type: object
+                  properties: {}
+                  description: 'The first aligned ontology entity '
+                align:entity2:
+                  type: object
+                  properties: {}
+                  description: 'The second aligned ontology entity '
+                align:relation:
+                  type: string
+                  description: Relation
+              description: Cell
+          description: align:map
+    AlignmentInfo:
+      required:
+        - creator
+        - date
+        - descId
+        - description
+        - id
+        - name
+        - sourceOntologyURI
+        - targetOntologyURI
+        - version
+      type: object
+      properties:
+        descId:
+          type: string
+          description: Business identifier
+        id:
+          type: integer
+          description: Technical identifier
+        date:
+          type: integer
+          description: UNIX timestamp of upload to IPSM
+        name:
+          type: string
+          description: Name of the alignment
+        sourceOntologyURI:
+          type: string
+          description: URI of the source ontology for alignment
+        targetOntologyURI:
+          type: string
+          description: URI of the target ontology for alignment
+        version:
+          type: string
+          description: Alignment version
+        creator:
+          type: string
+          description: Alignment creator
+        description:
+          type: string
+          description: Alignment description
+    Error:
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+          description: Description of the error
+    Response:
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+          description: Descriptive response
+    LoggingResponse:
+      required:
+        - level
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+        level:
+          type: string
+          enum:
+            - ALL
+            - TRACE
+            - DEBUG
+            - INFO
+            - WARN
+            - ERROR
+            - OFF
+    VersionResponse:
+      required:
+        - version
+      type: object
+      properties:
+        version:
+          type: string
+    AlignmentID:
+      required:
+        - name
+        - version
+      type: object
+      properties:
+        name:
+          type: string
+          description: Alignment name
+        version:
+          type: string
+          description: Alignment version
+    TranslationRequest:
+      required:
+        - alignIDs
+        - graphStr
+      type: object
+      properties:
+        alignIDs:
+          type: array
+          description: Sequence of alignment IDs to ba applied
+          items:
+            $ref: '#/components/schemas/AlignmentID'
+        graphStr:
+          type: string
+          description: JSON-LD message as a string
+    TranslationResponse:
+      required:
+        - graphStr
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+          description: Info on the success of the translation
+        graphStr:
+          type: string
+          description: Translated JSON-LD message as a string
+    TranslationErrorResponse:
+      required:
+        - graphStr
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+          description: Info on the failure of the translation
+        graphStr:
+          maxLength: 0
+          type: string
+          description: Empty string
