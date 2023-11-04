@@ -22,9 +22,9 @@ assistiot/semantic_translation  1.0.0               2a2587804717        1 minute
 ```
 ## Authors
 
-- [Wiesław Pawłowski](wieslaw.pawlowski@ibspan.waw.pl)
-- [Paweł Szmeja](pawel.szmeja@ibspan.waw.pl)
-- [Piotr Sowiński](piotr.sowinski@ibspan.waw.pl)
+- [Wiesław Pawłowski](mailto:wieslaw.pawlowski@ibspan.waw.pl)
+- [Paweł Szmeja](mailto:pawel.szmeja@ibspan.waw.pl)
+- [Piotr Sowiński](mailto:piotr.sowinski@ibspan.waw.pl)
 
 ## License
 
