@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  semantic-translation:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-11-28T11:28:21.102133518+01:00"
+    description: Semantic Translation enabler
+    digest: 82f8e3f04002b93c266ee953e8f2dce2fc5f67031dc1f89fe44d6d919d5d4a2e
+    name: semantic-translation
+    type: application
+    urls:
+    - semantic-translation-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-11-28T11:28:21.101852673+01:00"
