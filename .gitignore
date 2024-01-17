@@ -9,4 +9,3 @@ project/metals.sbt
 project/project/
 project/target/
 ipsm-*.log
-semantic-translation-*.tgz
