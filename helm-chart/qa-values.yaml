@@ -19,7 +19,7 @@ semtrans:
   # Configuration of the container image.
   imagePullSecrets: []
   image:
-    repository: docker.io/assistiot/semantic_translation
+    repository: assistiot/semantic_translation
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
     pullPolicy: IfNotPresent
