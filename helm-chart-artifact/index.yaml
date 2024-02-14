@@ -3,22 +3,12 @@ entries:
   semantic-translation:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-02-11T17:15:07.175396767+01:00"
+    created: "2024-02-14T11:31:31.470573842+01:00"
     description: Semantic Translation enabler
-    digest: 98928e353cc4364167652955cff44858cbf8ea1ced62bacef2c3c79b234b3d63
+    digest: 94d2cf744e05836ae4354a49627fdcaf322912e59c1ae8738584bf8b96bae7a4
     name: semantic-translation
     type: application
     urls:
     - semantic-translation-1.0.1.tgz
     version: 1.0.1
-  - apiVersion: v2
-    appVersion: 1.0.0
-    created: "2024-02-11T17:15:07.175187677+01:00"
-    description: Semantic Translation enabler
-    digest: 82f8e3f04002b93c266ee953e8f2dce2fc5f67031dc1f89fe44d6d919d5d4a2e
-    name: semantic-translation
-    type: application
-    urls:
-    - semantic-translation-1.0.0.tgz
-    version: 1.0.0
-generated: "2024-02-11T17:15:07.166221778+01:00"
+generated: "2024-02-14T11:31:31.470251501+01:00"
